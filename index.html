@@ -1,0 +1,263 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Informe Ejecutivo - Olist</title>
+<head>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f6f9;
+        color: #243247;
+        margin: 0;
+        padding: 40px;
+        line-height: 1.6;
+    }
+
+    h1 {
+        color: #17365d;
+        font-size: 36px;
+        margin-bottom: 8px;
+    }
+
+    h2 {
+        color: #2874a6;
+        font-size: 22px;
+        margin-top: 25px;
+    }
+
+    p {
+        font-size: 15px;
+        color: #526174;
+    }
+
+    table {
+    width: 40%;
+    border-collapse: collapse;
+    background-color: white;
+    margin-top: 15px;
+    margin-bottom: 25px;
+}
+
+th, td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #dde3ea;
+    text-align: left;
+}
+
+th {
+    background-color: #dceaf5;
+    color: #17365d;
+    font-weight: bold;
+}
+
+tr:nth-child(even) {
+    background-color: #f4f6f9;
+}
+th:nth-child(1), td:nth-child(1) {
+    width: 5%;
+}
+
+th:nth-child(2), td:nth-child(2) {
+    width: 5%;
+}
+
+th:nth-child(3), td:nth-child(3) {
+    width: 15%;
+}
+
+</style>
+
+<body>
+
+    <h1>Informe Ejecutivo</h1>
+    <h2 style="font-size: 32px;">Pronóstico de demanda y planificación operativa</h2>
+    <p>Fuente de datos: Olist - Brazilian E-Commerce Dataset.</p>
+<hr>
+
+<h2>Caso de estudio</h2>
+
+<p>
+En las operaciones logísticas, una planificación eficiente
+de los recursos es fundamental para garantizar el cumplimiento
+de los pedidos y mantener un adecuado control de los costos
+laborales. Sin embargo, las operaciones de alistamiento de
+pedidos enfrentan el reto de ajustar sus recursos a una
+demanda que cambia diariamente, lo que puede generar
+situaciones de capacidad insuficiente o por el contrario una asignación
+excesiva de personal.
+</p>
+
+<p>
+Se seleccionó este problema por su relación directa con
+la gestión de operaciones y la toma de decisiones basada
+en datos. El propósito es utilizar información histórica
+de comercio electrónico para estimar la demanda diaria,
+anticipar necesidades de capacidad y evaluar alternativas
+de planificación laboral.
+</p>
+
+<p>
+El estudio busca responder tres preguntas principales:
+¿cuántas unidades se espera alistar diariamente?,
+¿qué capacidad laboral se necesita para atender la demanda
+con un margen de seguridad? y ¿cómo planificar los recursos
+sin superar un LTR semanal del 65%?
+</p>
+<hr>
+
+<h2>Fuente y descripción de los datos</h2>
+
+<p>
+Se utilizó el conjunto de datos público
+Brazilian E-Commerce Public Dataset by Olist,
+disponible en Kaggle. Contiene registros históricos
+de comercio electrónico en Brasil entre 2016 y 2018,
+incluyendo información de pedidos, artículos por pedido,
+clientes, productos, vendedores y pagos.
+</p>
+
+<p>
+Los archivos se descargaron desde Kaggle mediante
+la biblioteca kagglehub en Google Colab y posteriormente
+se cargaron seis tablas en Google BigQuery. Mediante SQL
+se realizaron las validaciones de calidad, el análisis
+de relaciones entre tablas, el cálculo de indicadores
+y la identificación de patrones y tendencias en la demanda.
+Python se utilizó como herramienta complementaria para
+desarrollar y evaluar los modelos de pronóstico, analizar
+sus errores y generar visualizaciones interactivas con Plotly.
+</p>
+
+<p>
+Para el análisis inicial de demanda se seleccionó el período
+comprendido entre el 1 de febrero de 2017 y el 31 de agosto
+de 2018, con registros de pedidos en 577 días. Para el modelado
+se estableció como fecha de corte el 21 de agosto de 2018,
+conservando 567 días, debido a una disminución atípica
+y sostenida de pedidos durante los últimos días del mes.
+</p>
+
+<p>
+Entre las principales limitaciones se encuentra la ausencia
+de información real sobre productividad laboral, horas
+trabajadas, salarios e ingresos por servicios logísticos.
+Por esta razón, estos indicadores se desarrollarán mediante
+supuestos explícitos para simular escenarios operativos.
+</p>
+
+<p>
+Adicionalmente, la fecha utilizada para analizar la demanda
+corresponde al momento de compra del pedido y no necesariamente
+al momento de su alistamiento. Por tanto, la demanda calculada
+representa una aproximación a la carga operativa. La caída
+de registros al final de agosto de 2018 podría reflejar
+una limitación de cobertura, aunque no es posible confirmarlo
+con los datos disponibles.
+</p>
+<hr>
+
+<h2>Modelo de datos</h2>
+
+<p>
+Se diseñó una base de datos relacional en Google BigQuery
+a partir de seis conjuntos de datos del repositorio Olist:
+pedidos, artículos por pedido, clientes, productos,
+vendedores y pagos. El modelo permite integrar información
+de diferentes entidades mediante claves primarias (PK)
+y foráneas (FK), facilitando las consultas SQL y el
+análisis de la demanda de pedidos.
+</p>
+
+<table>
+    <tr>
+        <th>Tabla</th>
+        <th>Registros</th>
+        <th>Descripción</th>
+    </tr>
+    <tr><td>orders</td><td>99,441</td><td>Pedidos realizados</td></tr>
+    <tr><td>order_items</td><td>112,650</td><td>Artículos incluidos en los pedidos</td></tr>
+    <tr><td>customers</td><td>99,441</td><td>Información de clientes</td></tr>
+    <tr><td>products</td><td>32,951</td><td>Catálogo de productos</td></tr>
+    <tr><td>sellers</td><td>3,095</td><td>Información de vendedores</td></tr>
+    <tr><td>order_payments</td><td>103,886</td><td>Pagos asociados a pedidos</td></tr>
+</table>
+<h3 style="color: #2874a6;">Relaciones entre las tablas - Diagrama Entidad-Relación</h3>
+
+<p>
+El modelo utiliza claves primarias (PK) para identificar
+los registros de cada entidad y claves foráneas (FK)
+para establecer las relaciones entre las tablas.
+</p>
+
+<p>
+La tabla "orders" se relaciona con "customers" mediante el campo
+"customer_id" y con "order_items" y "order_payments" mediante el campo
+"order_id". Por su parte, la tabla "order_items" se relaciona con
+"products" mediante el campo "product_id" y con "sellers" mediante el campo
+"seller_id".
+</p>
+
+<p>
+Las tablas "order_items" y "order_payments" utilizan claves
+primarias compuestas por (order_id, order_item_id)
+y (order_id, payment_sequential), respectivamente.
+</p>
+    
+</h3>
+
+<div class="mermaid" style="width: 60%; margin: 0; text-align: left;">
+    
+erDiagram
+    customers ||--o{ orders : realiza
+    orders ||--o{ order_items : contiene
+    orders ||--o{ order_payments : tiene
+    products ||--o{ order_items : incluye
+    sellers ||--o{ order_items : vende
+
+    customers {
+         string customer_id PK
+         }
+
+    orders {
+         string order_id PK
+         string customer_id FK
+         }
+    
+    order_items {
+         string order_id PK,FK
+         int order_item_id PK
+         string product_id FK
+         string seller_id FK
+         }
+
+    order_payments {
+         string order_id PK,FK
+         int payment_sequential PK
+         }
+    
+    products {
+         string product_id PK
+         }
+
+    sellers {
+         string seller_id PK
+         }
+
+
+</div>
+
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+mermaid.initialize({ startOnLoad: true });
+await mermaid.run();
+</script>
+
+</body>
+
+</html>
+
